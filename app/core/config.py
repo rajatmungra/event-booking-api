@@ -11,6 +11,8 @@ class Settings(BaseSettings):
     jwt_secret: str = Field(min_length=32)
     # Only the test suite uses this; the app never connects to it.
     test_database_url: str | None = None
+    # Password for the demo users created by scripts/seed.py; only the seed script reads it.
+    seed_password: str | None = Field(default=None, min_length=8)
 
 
 settings = Settings()

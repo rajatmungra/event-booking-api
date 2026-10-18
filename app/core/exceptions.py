@@ -3,10 +3,22 @@ class AppError(Exception):
     code = "APP_ERROR"
     message = "Something went wrong."
 
-    def __init__(self, message: str | None = None, details: dict | None = None):
+    def __init__(
+        self,
+        message: str | None = None,
+        details: dict | None = None,
+        headers: dict[str, str] | None = None,
+    ):
         self.message = message or self.message
         self.details = details or {}
+        self.headers = headers or {}
         super().__init__(self.message)
+
+
+class TooManyRequests(AppError):
+    status_code = 429
+    code = "TOO_MANY_REQUESTS"
+    message = "Too many attempts. Try again later."
 
 
 class EmailAlreadyRegistered(AppError):

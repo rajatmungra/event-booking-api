@@ -1,11 +1,12 @@
 import uuid
+from datetime import UTC, datetime
 
-from sqlalchemy import exists, select
+from sqlalchemy import Row, and_, case, exists, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import InvalidEventStatus, SeatsAlreadyExist
 from app.models.event import EventStatus
-from app.models.seat import Seat
+from app.models.seat import Seat, SeatStatus
 from app.models.user import User
 from app.schemas.seat import SeatLayoutCreate
 from app.services.events import get_event, get_owned_event
@@ -47,7 +48,16 @@ async def create_layout(
 
 async def get_seat_map(
     session: AsyncSession, event_id: uuid.UUID, viewer: User | None
-) -> list[Seat]:
+) -> list[Row]:
     # Same visibility as the event itself: a draft's seats are hidden from non-owners.
     await get_event(session, event_id, viewer)
-    return await list_seats(session, event_id)
+    # Expired holds are free to book (see bookings.is_free), so show them as available.
+    # CASE computes this in the query; the stored rows are not changed.
+    expired_hold = and_(Seat.status == SeatStatus.held, Seat.held_until < datetime.now(UTC))
+    status = case((expired_hold, SeatStatus.available.value), else_=Seat.status).label("status")
+    rows = await session.execute(
+        select(Seat.id, Seat.section, Seat.row, Seat.number, Seat.price_cents, status)
+        .where(Seat.event_id == event_id)
+        .order_by(Seat.section, Seat.row, Seat.number)
+    )
+    return list(rows)

@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.pool import NullPool
 
 from app.core.config import settings
+from app.core.rate_limit import login_limiter
 from app.core.security import password_hash
 from app.db.base import Base
 from app.db.session import get_session
@@ -31,6 +32,12 @@ def create_schema():
             await conn.run_sync(Base.metadata.create_all)
 
     asyncio.run(reset())
+
+
+@pytest.fixture(autouse=True)
+def reset_login_limiter():
+    # The limiter lives in memory for the whole test run; start every test with a clean slate.
+    login_limiter.attempts.clear()
 
 
 @pytest.fixture(autouse=True)
