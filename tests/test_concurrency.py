@@ -15,6 +15,7 @@ from app.models.booking import Booking
 from app.models.user import User, UserRole
 from tests.conftest import TestSession
 from tests.test_bookings import book, event_with_seats
+from tests.test_payments import count_payments, pay
 
 
 @pytest.fixture
@@ -74,3 +75,17 @@ async def test_overlapping_requests_in_any_order_never_deadlock(
     assert statuses.count(201) == 1
     assert statuses.count(409) == 19
     assert await count_bookings() == 1
+
+
+async def test_parallel_retries_with_same_key_pay_once(client, organizer_headers, customer_headers):
+    event, seats = await event_with_seats(client, organizer_headers)
+    booking = (await book(client, customer_headers, event, seats[:1])).json()
+
+    # A client retrying a slow request: 10 identical pay calls at the same moment.
+    responses = await asyncio.gather(
+        *(pay(client, customer_headers, booking, key="retry-key") for _ in range(10))
+    )
+
+    assert {response.status_code for response in responses} == {200}
+    assert len({response.json()["id"] for response in responses}) == 1
+    assert await count_payments() == 1

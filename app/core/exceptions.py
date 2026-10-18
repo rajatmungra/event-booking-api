@@ -73,3 +73,21 @@ class BookingNotFound(AppError):
     status_code = 404
     code = "BOOKING_NOT_FOUND"
     message = "Booking not found."
+
+
+class InvalidBookingStatus(AppError):
+    status_code = 409
+    code = "INVALID_BOOKING_STATUS"
+    message = "This action isn't allowed in the booking's current status."
+
+
+class BookingExpired(AppError):
+    status_code = 410
+    code = "BOOKING_EXPIRED"
+    message = "The seat hold for this booking has expired."
+
+
+class IdempotencyKeyReused(AppError):
+    status_code = 409
+    code = "IDEMPOTENCY_KEY_REUSED"
+    message = "This Idempotency-Key was already used for a different booking."

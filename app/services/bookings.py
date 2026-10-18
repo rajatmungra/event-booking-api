@@ -78,8 +78,10 @@ async def list_bookings(session: AsyncSession, user: User) -> list[Booking]:
     return list(bookings)
 
 
-async def get_booking(session: AsyncSession, booking_id: uuid.UUID, user: User) -> Booking:
-    booking = await session.get(Booking, booking_id)
+async def get_booking(
+    session: AsyncSession, booking_id: uuid.UUID, user: User, *, for_update: bool = False
+) -> Booking:
+    booking = await session.get(Booking, booking_id, with_for_update=for_update)
     # Other people's bookings look like they don't exist.
     if booking is None or (user.role != UserRole.admin and booking.user_id != user.id):
         raise BookingNotFound()
