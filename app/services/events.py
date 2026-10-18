@@ -26,8 +26,11 @@ def check_event_times(starts_at: datetime, ends_at: datetime, *, check_future: b
         raise InvalidEventTimes("starts_at must be in the future.")
 
 
-async def get_owned_event(session: AsyncSession, event_id: uuid.UUID, user: User) -> Event:
-    event = await session.get(Event, event_id)
+async def get_owned_event(
+    session: AsyncSession, event_id: uuid.UUID, user: User, *, for_update: bool = False
+) -> Event:
+    # for_update=True adds SELECT ... FOR UPDATE: the row stays locked until commit/rollback.
+    event = await session.get(Event, event_id, with_for_update=for_update)
     if event is None:
         raise EventNotFound()
     if not can_manage(event, user):

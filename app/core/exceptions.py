@@ -49,3 +49,9 @@ class InvalidEventTimes(AppError):
     status_code = 422
     code = "INVALID_EVENT_TIMES"
     message = "Invalid event start or end time."
+
+
+class SeatsAlreadyExist(AppError):
+    status_code = 409
+    code = "SEATS_ALREADY_EXIST"
+    message = "This event already has a seat layout."
