@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    # A real Postgres for the tests (SQLite doesn't support the row locking we test).
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres # throwaway CI database, not a real secret
+          POSTGRES_DB: event_booking_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 2s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      TEST_DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/event_booking_test
+      # The app requires DATABASE_URL at import time; tests never use it, they override the session.
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/event_booking_test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.13.1"
+          python-version: "3.12"
+
+      - name: Generate a JWT secret for this run
+        run: echo "JWT_SECRET=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
+
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      - name: Lint
+        run: |
+          uv run ruff check .
+          uv run ruff format --check .
+
+      - name: Check migrations match the models
+        run: |
+          DATABASE_URL="$TEST_DATABASE_URL" uv run alembic upgrade head
+          DATABASE_URL="$TEST_DATABASE_URL" uv run alembic check
+
+      - name: Tests
+        run: uv run pytest
+
+      # The core guarantee: run the concurrency tests several times, since races are timing-dependent.
+      - name: Concurrency tests (10 runs)
+        run: for i in $(seq 10); do uv run pytest -q tests/test_concurrency.py; done

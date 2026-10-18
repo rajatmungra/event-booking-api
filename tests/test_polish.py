@@ -3,6 +3,7 @@ import logging
 
 from sqlalchemy import func, select
 
+from app.core.config import Settings
 from app.core.logging import JsonFormatter, request_id_var
 from app.models.event import Event
 from app.models.seat import Seat
@@ -142,3 +143,15 @@ async def test_seed_creates_demo_data_once():
         assert await session.scalar(select(func.count()).select_from(User)) == 3
         assert await session.scalar(select(func.count()).select_from(Event)) == 3
         assert await session.scalar(select(func.count()).select_from(Seat)) == 600 + 145 + 96
+
+
+# --- settings ---
+
+
+def test_database_url_gets_the_asyncpg_driver():
+    secret = "x" * 32
+    for given in ("postgresql://u:p@host/db", "postgres://u:p@host/db"):
+        url = Settings(database_url=given, jwt_secret=secret).database_url
+        assert url == "postgresql+asyncpg://u:p@host/db"
+    already = "postgresql+asyncpg://u:p@host/db"
+    assert Settings(database_url=already, jwt_secret=secret).database_url == already

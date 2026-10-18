@@ -1,4 +1,4 @@
-from pydantic import Field
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -13,6 +13,18 @@ class Settings(BaseSettings):
     test_database_url: str | None = None
     # Password for the demo users created by scripts/seed.py; only the seed script reads it.
     seed_password: str | None = Field(default=None, min_length=8)
+
+    @field_validator("database_url", "test_database_url")
+    @classmethod
+    def use_asyncpg_driver(cls, url: str | None) -> str | None:
+        # Hosting providers (e.g. Render) give "postgresql://..." or "postgres://...", but the
+        # async engine needs the driver in the URL: "postgresql+asyncpg://...".
+        if url is None:
+            return None
+        for prefix in ("postgresql://", "postgres://"):
+            if url.startswith(prefix):
+                return "postgresql+asyncpg://" + url.removeprefix(prefix)
+        return url
 
 
 settings = Settings()
