@@ -93,8 +93,8 @@ flowchart LR
     routes --> services["services<br/>business rules, transactions, locks"]
     services --> models["models<br/>SQLAlchemy 2.0"]
     models --> db[(PostgreSQL 16)]
-    services -. raise .-> errors["core/exceptions<br/>domain errors"]
-    errors -. handled in main.py .-> client
+    services -.->|"raise"| errors["core/exceptions<br/>domain errors"]
+    errors -.->|"handled in main.py"| client
 ```
 
 - **Routes are thin.** They parse input, call a service and return a Pydantic schema. They never
