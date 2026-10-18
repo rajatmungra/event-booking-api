@@ -1,12 +1,12 @@
 # Event Booking API
 
-[![CI](https://github.com/OWNER/REPO/actions/workflows/ci.yml/badge.svg)](https://github.com/OWNER/REPO/actions/workflows/ci.yml)
+[![CI](https://github.com/rajatmungra/event-booking-api/actions/workflows/ci.yml/badge.svg)](https://github.com/rajatmungra/event-booking-api/actions/workflows/ci.yml)
 
 A REST API where organizers publish events with seat layouts and customers hold, pay for and
 cancel seats. **A seat can never be double-booked, even when many people click "book" at the same
 moment.** An automated test proves it: 50 parallel requests for one seat, exactly one wins.
 
-**Live demo:** https://YOUR-SERVICE.onrender.com/docs (interactive API docs)
+**Live demo:** https://event-booking-api-ld4j.onrender.com/docs (interactive API docs)
 
 Built with FastAPI (async), PostgreSQL 16, SQLAlchemy 2.0 + asyncpg, Alembic, Pydantic v2, JWT
 auth with argon2 password hashing, uv, Ruff, pytest and Docker.
