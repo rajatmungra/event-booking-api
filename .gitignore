@@ -4,5 +4,5 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 .claude
-CLAUD.md
+CLAUDE.md
 PLAN.md

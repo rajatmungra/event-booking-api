@@ -3,7 +3,11 @@ name = "event-booking-api"
 version = "0.1.0"
 requires-python = ">=3.12"
 dependencies = [
+    "alembic>=1.20.0",
+    "asyncpg>=0.32.0",
     "fastapi>=0.145.0",
+    "pydantic-settings>=2.16.0",
+    "sqlalchemy[asyncio]>=2.1.5",
     "uvicorn>=0.54.0",
 ]
 
@@ -16,6 +20,8 @@ dev = [
 
 [tool.ruff]
 line-length = 100
+# Migrations are left as generated; `ruff --fix` must never rewrite a committed migration.
+extend-exclude = ["alembic/versions"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
