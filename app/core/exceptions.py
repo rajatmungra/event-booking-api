@@ -55,3 +55,21 @@ class SeatsAlreadyExist(AppError):
     status_code = 409
     code = "SEATS_ALREADY_EXIST"
     message = "This event already has a seat layout."
+
+
+class SeatNotFound(AppError):
+    status_code = 404
+    code = "SEAT_NOT_FOUND"
+    message = "One or more seats don't exist for this event."
+
+
+class SeatUnavailable(AppError):
+    status_code = 409
+    code = "SEAT_UNAVAILABLE"
+    message = "One or more seats are already held or booked."
+
+
+class BookingNotFound(AppError):
+    status_code = 404
+    code = "BOOKING_NOT_FOUND"
+    message = "Booking not found."

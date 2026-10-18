@@ -50,3 +50,4 @@ def require_role(*roles: UserRole):
 
 
 OrganizerUser = Annotated[User, Depends(require_role(UserRole.organizer))]
+CustomerUser = Annotated[User, Depends(require_role(UserRole.customer))]
