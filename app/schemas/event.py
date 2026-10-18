@@ -44,3 +44,13 @@ class EventList(BaseModel):
     total: int
     limit: int
     offset: int
+
+
+class EventStats(BaseModel):
+    event_id: uuid.UUID
+    total_seats: int
+    seats_sold: int
+    seats_held: int
+    seats_available: int
+    revenue_cents: int
+    occupancy_percent: float

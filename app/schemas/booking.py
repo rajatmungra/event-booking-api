@@ -23,6 +23,7 @@ class BookingRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: uuid.UUID
+    user_id: uuid.UUID
     event_id: uuid.UUID
     status: BookingStatus
     total_cents: int

@@ -8,9 +8,11 @@ from tests.conftest import TestSession
 from tests.test_events import create_event, create_published_event
 
 
-async def event_with_seats(client, headers, seats_per_row=5, publish=True) -> tuple[dict, list]:
+async def event_with_seats(
+    client, headers, seats_per_row=5, publish=True, **event_overrides
+) -> tuple[dict, list]:
     create = create_published_event if publish else create_event
-    event = await create(client, headers)
+    event = await create(client, headers, **event_overrides)
     layout = {
         "sections": [{"name": "A", "rows": 1, "seats_per_row": seats_per_row, "price_cents": 2500}]
     }

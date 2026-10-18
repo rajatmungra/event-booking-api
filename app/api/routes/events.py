@@ -5,7 +5,9 @@ from fastapi import APIRouter, Query, status
 from pydantic import AwareDatetime
 
 from app.api.deps import OptionalUser, OrganizerUser, SessionDep
-from app.schemas.event import EventCreate, EventList, EventRead, EventUpdate
+from app.schemas.booking import BookingRead
+from app.schemas.event import EventCreate, EventList, EventRead, EventStats, EventUpdate
+from app.services import bookings as booking_service
 from app.services import events as event_service
 
 router = APIRouter(prefix="/events", tags=["events"])
@@ -66,3 +68,18 @@ async def publish_event(event_id: uuid.UUID, user: OrganizerUser, session: Sessi
 async def cancel_event(event_id: uuid.UUID, user: OrganizerUser, session: SessionDep) -> EventRead:
     event = await event_service.cancel_event(session, event_id, user)
     return EventRead.model_validate(event)
+
+
+@router.get("/{event_id}/bookings")
+async def list_event_bookings(
+    event_id: uuid.UUID, user: OrganizerUser, session: SessionDep
+) -> list[BookingRead]:
+    bookings = await booking_service.list_event_bookings(session, event_id, user)
+    return [BookingRead.model_validate(booking) for booking in bookings]
+
+
+@router.get("/{event_id}/stats")
+async def get_event_stats(
+    event_id: uuid.UUID, user: OrganizerUser, session: SessionDep
+) -> EventStats:
+    return await event_service.get_event_stats(session, event_id, user)

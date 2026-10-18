@@ -42,3 +42,11 @@ async def pay_booking(
 ) -> PaymentRead:
     payment = await payment_service.pay_booking(session, booking_id, user, idempotency_key)
     return PaymentRead.model_validate(payment)
+
+
+@router.post("/{booking_id}/cancel")
+async def cancel_booking(
+    booking_id: uuid.UUID, user: CurrentUser, session: SessionDep
+) -> BookingRead:
+    booking = await booking_service.cancel_booking(session, booking_id, user)
+    return BookingRead.model_validate(booking)

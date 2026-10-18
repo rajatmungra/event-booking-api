@@ -91,3 +91,9 @@ class IdempotencyKeyReused(AppError):
     status_code = 409
     code = "IDEMPOTENCY_KEY_REUSED"
     message = "This Idempotency-Key was already used for a different booking."
+
+
+class CancellationWindowClosed(AppError):
+    status_code = 409
+    code = "CANCELLATION_WINDOW_CLOSED"
+    message = "Bookings can only be cancelled until 24 hours before the event starts."
