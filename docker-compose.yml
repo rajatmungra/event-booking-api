@@ -7,6 +7,7 @@ services:
       - "8000:8000"
     environment:
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      JWT_SECRET: ${JWT_SECRET}
     # Mount the code so migrations generated inside the container land in the repo.
     volumes:
       - .:/app
@@ -29,6 +30,18 @@ services:
       interval: 2s
       timeout: 5s
       retries: 10
+
+  # Throwaway database for the test suite. tmpfs keeps its data in memory: fast, and empty on every start.
+  db-test:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: event_booking_test
+    ports:
+      - "5435:5432"
+    tmpfs:
+      - /var/lib/postgresql/data
 
 volumes:
   pgdata:
