@@ -80,6 +80,11 @@ async def organizer_headers(client):
 
 
 @pytest.fixture
+async def other_organizer_headers(client):
+    return await register_and_login(client, "other-organizer@example.com", "organizer")
+
+
+@pytest.fixture
 async def admin_headers(client):
     # Admins can't self-register, so insert one directly.
     async with TestSession() as session:

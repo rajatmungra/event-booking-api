@@ -8,7 +8,7 @@ from app.core.config import settings
 from app.core.exceptions import NotAuthenticated
 
 ALGORITHM = "HS256"
-ACCESS_TOKEN_LIFETIME = timedelta(minutes=15)
+ACCESS_TOKEN_LIFETIME = timedelta(minutes=60)
 
 # Argon2 with pwdlib's recommended parameters.
 password_hash = PasswordHash.recommended()

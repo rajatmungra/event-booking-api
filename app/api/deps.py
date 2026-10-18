@@ -15,13 +15,23 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login", auto_error=False)
 SessionDep = Annotated[AsyncSession, Depends(get_session)]
 
 
-async def get_current_user(
+async def get_optional_user(
     session: SessionDep, token: Annotated[str | None, Depends(oauth2_scheme)]
-) -> User:
+) -> User | None:
+    # No token means an anonymous visitor; a bad token is still an error.
     if token is None:
-        raise NotAuthenticated()
+        return None
     user = await session.get(User, decode_access_token(token))
     if user is None or not user.is_active:
+        raise NotAuthenticated()
+    return user
+
+
+OptionalUser = Annotated[User | None, Depends(get_optional_user)]
+
+
+async def get_current_user(user: OptionalUser) -> User:
+    if user is None:
         raise NotAuthenticated()
     return user
 
@@ -37,3 +47,6 @@ def require_role(*roles: UserRole):
         return user
 
     return check_role
+
+
+OrganizerUser = Annotated[User, Depends(require_role(UserRole.organizer))]

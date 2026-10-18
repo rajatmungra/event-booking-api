@@ -4,12 +4,13 @@ from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.api.deps import SessionDep
-from app.api.routes import auth, users
+from app.api.routes import auth, events, users
 from app.core.exceptions import AppError
 
 app = FastAPI(title="Event Booking API")
 app.include_router(auth.router)
 app.include_router(users.router)
+app.include_router(events.router)
 
 
 @app.exception_handler(AppError)
